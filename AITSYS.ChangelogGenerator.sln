@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChangelogGenerator", "ChangelogGenerator\ChangelogGenerator.csproj", "{5737C9AE-0831-4798-8B72-D7A3F15BBD15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5737C9AE-0831-4798-8B72-D7A3F15BBD15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5737C9AE-0831-4798-8B72-D7A3F15BBD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5737C9AE-0831-4798-8B72-D7A3F15BBD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5737C9AE-0831-4798-8B72-D7A3F15BBD15}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0A885E40-B57F-45E2-8CE5-35A892433D9D}
+	EndGlobalSection
+EndGlobal

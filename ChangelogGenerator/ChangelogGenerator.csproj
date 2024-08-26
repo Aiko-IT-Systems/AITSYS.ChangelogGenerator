@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <NoWarn>
+            1591;NU5128;DV2001;NETSDK1188;CS8600;CS8625;CS8601;CS8604;CS0219;CS8618;CS8619;CS8597;CS8603;CS8602;CS8765;CS8632;CS8633;CS8714;CS8629;CS8767;CS8620</NoWarn>
+        <LangVersion>preview</LangVersion>
+        <TargetFramework>net9.0</TargetFramework>
+        <NuGetAuditSuppress>true</NuGetAuditSuppress>
+        <NuGetAudit>false</NuGetAudit>
+        <AssemblyName>AITSYS.ChangelogGenerator</AssemblyName>
+        <RootNamespace>AITSYS.ChangelogGenerator</RootNamespace>
+        <PackageId>AITSYS.ChangelogGenerator</PackageId>
+        <Description>A simple automatic changelog generator</Description>
+        <PackageTags>Changelogs,Changelog Genrator,AITSYS,Net7,Net8,Net9</PackageTags>
+        <Authors>AITSYS, DisCatSharp, DisCatSharp Contributors</Authors>
+        <Company>AITSYS</Company>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <PackageProjectUrl>https://github.com/Aiko-IT-Systems/AITSYS.ChangelogGenerator</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Aiko-IT-Systems/AITSYS.ChangelogGenerator</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageIcon></PackageIcon>
+        <PackageLicenseExpression />
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Nullable>enable</Nullable>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <CodeAnalysisRuleSet></CodeAnalysisRuleSet>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <DebugType>Portable</DebugType>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>
+            $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <PackageReleaseNotes></PackageReleaseNotes>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <VersionPrefix>1.0.0</VersionPrefix>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
+        <Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
+        <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
+        <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
+        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).0</FileVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(VersionSuffix)' == ''">
+        <Version>$(VersionPrefix)</Version>
+        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).0</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <DefineConstants>$(DefineConstants);CI_BUILD</DefineConstants>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(CI)' == 'True'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <DefineConstants>$(DefineConstants);CI_BUILD</DefineConstants>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <DefineConstants>$(DefineConstants);CI_BUILD</DefineConstants>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true' And '$(TF_BUILD)' != 'true' And '$(CI)' != 'True'">
+        <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+        <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+
+</Project>
+  
