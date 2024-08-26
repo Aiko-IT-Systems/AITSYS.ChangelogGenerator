@@ -8,23 +8,26 @@ using LibGit2Sharp;
 
 namespace AITSYS.ChangelogGenerator.Services;
 
-public sealed class GitService(string repositoryPath)
+public sealed class GitService(string repositoryPath, string? afterCommitHash = null, string? beforeCommitHash = null)
 {
-	public DiffContext GetUnifiedDiffSinceLastTag()
+	public DiffContext? GetUnifiedDiff()
 	{
 		using var repo = new Repository(repositoryPath);
-		var lastTag = repo.Tags.LastOrDefault();
-		var lastCommit = lastTag?.PeeledTarget as Commit ?? repo.Head.Tip;
+		var afterCommit = afterCommitHash is not null
+			? repo.Lookup(afterCommitHash, ObjectType.Commit).Peel<Commit>()
+			: repo.Tags.LastOrDefault()?.PeeledTarget as Commit ?? repo.Head.Tip;
 
-		var headCommit = repo.Head.Tip;
+		var beforeCommit = beforeCommitHash is not null
+			? repo.Lookup(beforeCommitHash, ObjectType.Commit).Peel<Commit>()
+			: repo.Head.Tip;
 
-		var patch = repo.Diff.Compare<Patch>(lastCommit.Tree, headCommit.Tree);
+		var patch = repo.Diff.Compare<Patch>(afterCommit.Tree, beforeCommit.Tree);
 
 		Console.WriteLine("Generating diffs");
 		var diffs = (from entry in patch
 					where entry.Path.EndsWith(".cs", StringComparison.Ordinal)
-					let oldFileContent = GetFileContentAtCommit(repo, entry.OldPath, lastCommit)
-					let newFileContent = GetFileContentAtCommit(repo, entry.Path, headCommit)
+					let oldFileContent = GetFileContentAtCommit(repo, entry.OldPath, afterCommit)
+					let newFileContent = GetFileContentAtCommit(repo, entry.Path, beforeCommit)
 					select new DiffContext
 					{
 						FilePath = entry.Path,
@@ -36,7 +39,9 @@ public sealed class GitService(string repositoryPath)
 						LinesDeleted = entry.LinesDeleted
 					}).ToList();
 
-		return CombineDiffs(diffs);
+		return diffs.Any()
+			? CombineDiffs(diffs)
+			: null;
 	}
 
 	private static DiffContext CombineDiffs(List<DiffContext> diffs)
