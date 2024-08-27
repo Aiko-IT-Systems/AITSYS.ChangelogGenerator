@@ -10,10 +10,10 @@ dotnet tool install --global --add-source ChangelogGenerator/bin/Release/ AITSYS
 dotnet tool update --global --add-source ChangelogGenerator/bin/Release/ AITSYS.ChangelogGenerator
 
 # Install
-dotnet tool install --global AITSYS.ChangelogGenerator
+dotnet tool install --global AITSYS.ChangelogGenerator --version 1.0.1
 
 # Update
-dotnet tool update --global AITSYS.ChangelogGenerator
+dotnet tool update --global AITSYS.ChangelogGenerator --version 1.0.1
 
 # Uninstall
 dotnet tool uninstall --global AITSYS.ChangelogGenerator
