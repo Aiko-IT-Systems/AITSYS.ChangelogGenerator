@@ -17,5 +17,5 @@ dotnet tool update --global AITSYS.ChangelogGenerator
 dotnet tool uninstall --global AITSYS.ChangelogGenerator
 
 # Publish
-Get-ChildItem ./ChangelogGenerator/bin/Release/*nupkg | ForEach-Object { dotnet nuget push $_.FullName -k $env:NUGET -s https://api.nuget.org/v3/index.json --skip-duplicate }
+Get-ChildItem ./ChangelogGenerator/bin/Release/*.nupkg | ForEach-Object { dotnet nuget push $_.FullName -k $env:NUGET -s https://api.nuget.org/v3/index.json --skip-duplicate }
 ```
