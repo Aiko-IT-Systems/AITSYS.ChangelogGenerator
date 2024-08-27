@@ -19,7 +19,7 @@
 		<RootNamespace>AITSYS.ChangelogGenerator</RootNamespace>
 		<PackageId>AITSYS.ChangelogGenerator</PackageId>
 		<Description>A simple automatic changelog generator</Description>
-		<PackageTags>Changelogs,Changelog Genrator,AITSYS,Net7,Net8,Net9</PackageTags>
+		<PackageTags>Changelogs,Changelog Generator,AITSYS,Net7,Net8,Net9</PackageTags>
 		<Authors>AITSYS</Authors>
 		<Company>AITSYS</Company>
 		<PackageProjectUrl>https://github.com/Aiko-IT-Systems/AITSYS.ChangelogGenerator</PackageProjectUrl>
