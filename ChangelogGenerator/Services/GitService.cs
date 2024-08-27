@@ -39,7 +39,7 @@ public sealed class GitService(string repositoryPath, string? afterCommitHash = 
 						LinesDeleted = entry.LinesDeleted
 					}).ToList();
 
-		return diffs.Any()
+		return diffs.Count is not 0
 			? CombineDiffs(diffs)
 			: null;
 	}
