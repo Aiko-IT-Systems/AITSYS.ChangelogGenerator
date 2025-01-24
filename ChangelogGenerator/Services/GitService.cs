@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,19 +25,19 @@ public sealed class GitService(string repositoryPath, string? afterCommitHash = 
 
 		Console.WriteLine("Generating diffs");
 		var diffs = (from entry in patch
-					where entry.Path.EndsWith(".cs", StringComparison.Ordinal)
-					let oldFileContent = GetFileContentAtCommit(repo, entry.OldPath, afterCommit)
-					let newFileContent = GetFileContentAtCommit(repo, entry.Path, beforeCommit)
-					select new DiffContext
-					{
-						FilePath = entry.Path,
-						OldFile = entry.OldPath,
-						NewFile = entry.Path,
-						OldContent = oldFileContent?.Split('\n').ToList() ?? [],
-						NewContent = newFileContent?.Split('\n').ToList() ?? [],
-						LinesAdded = entry.LinesAdded,
-						LinesDeleted = entry.LinesDeleted
-					}).ToList();
+		             where entry.Path.EndsWith(".cs", StringComparison.Ordinal)
+		             let oldFileContent = GetFileContentAtCommit(repo, entry.OldPath, afterCommit)
+		             let newFileContent = GetFileContentAtCommit(repo, entry.Path, beforeCommit)
+		             select new DiffContext
+		             {
+			             FilePath = entry.Path,
+			             OldFile = entry.OldPath,
+			             NewFile = entry.Path,
+			             OldContent = oldFileContent?.Split('\n').ToList() ?? [],
+			             NewContent = newFileContent?.Split('\n').ToList() ?? [],
+			             LinesAdded = entry.LinesAdded,
+			             LinesDeleted = entry.LinesDeleted
+		             }).ToList();
 
 		return diffs.Count is not 0
 			? CombineDiffs(diffs)

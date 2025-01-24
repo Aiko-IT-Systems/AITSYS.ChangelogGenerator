@@ -33,6 +33,13 @@ public sealed class ChangelogEntry
 	public List<(string Before, string After)> ModifiedEvents { get; set; } = [];
 	public List<string> RemovedEvents { get; set; } = [];
 
+	public List<string> AddedNamespaces { get; set; } = [];
+	public List<(string Before, string After)> ModifiedNamespaces { get; set; } = [];
+	public List<string> RemovedNamespaces { get; set; } = [];
+
+	public List<string> AddedUsings { get; set; } = [];
+	public List<string> RemovedUsings { get; set; } = [];
+
 	public override string ToString()
 	{
 		var sb = new StringBuilder();
@@ -93,13 +100,13 @@ public sealed class ChangelogEntry
 			sb.AppendLine();
 		}
 
-		/*if (this.ModifiedEnums.Count > 0)
+		if (this.ModifiedEnums.Count > 0)
 		{
 			sb.AppendLine("### Modified Enums:");
 			foreach (var (before, after) in this.ModifiedEnums)
 				sb.AppendLine($"- Before: {before}\n  After: {after}");
 			sb.AppendLine();
-		}*/
+		}
 
 		if (this.RemovedEnums.Count > 0)
 		{
@@ -202,6 +209,46 @@ public sealed class ChangelogEntry
 			sb.AppendLine("### Removed Events:");
 			foreach (var @event in this.RemovedEvents)
 				sb.AppendLine($"- {@event}");
+			sb.AppendLine();
+		}
+
+		if (this.AddedNamespaces.Count > 0)
+		{
+			sb.AppendLine("### Added Namespaces:");
+			foreach (var ns in this.AddedNamespaces)
+				sb.AppendLine($"- {ns}");
+			sb.AppendLine();
+		}
+
+		if (this.ModifiedNamespaces.Count > 0)
+		{
+			sb.AppendLine("### Modified Namespaces:");
+			foreach (var (before, after) in this.ModifiedNamespaces)
+				sb.AppendLine($"- Before: {before}\n  After: {after}");
+			sb.AppendLine();
+		}
+
+		if (this.RemovedNamespaces.Count > 0)
+		{
+			sb.AppendLine("### Removed Namespaces:");
+			foreach (var ns in this.RemovedNamespaces)
+				sb.AppendLine($"- {ns}");
+			sb.AppendLine();
+		}
+
+		if (this.AddedUsings.Count > 0)
+		{
+			sb.AppendLine("### Added Usings:");
+			foreach (var @using in this.AddedUsings)
+				sb.AppendLine($"- {@using}");
+			sb.AppendLine();
+		}
+
+		if (this.RemovedUsings.Count > 0)
+		{
+			sb.AppendLine("### Removed Usings:");
+			foreach (var @using in this.RemovedUsings)
+				sb.AppendLine($"- {@using}");
 			sb.AppendLine();
 		}
 

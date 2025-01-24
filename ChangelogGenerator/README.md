@@ -1,4 +1,4 @@
-# AITSYS.ChangelogGenerator
+﻿# AITSYS.ChangelogGenerator
 
 A simple automatic changelog generator
 
@@ -13,7 +13,7 @@ dotnet tool update --global --add-source ChangelogGenerator/bin/Release/ AITSYS.
 dotnet tool install --global AITSYS.ChangelogGenerator --version 1.0.1
 
 # Update
-dotnet tool update --global AITSYS.ChangelogGenerator --version 1.0.1
+dotnet tool update --global AITSYS.ChangelogGenerator --version 1.0.2
 
 # Uninstall
 dotnet tool uninstall --global AITSYS.ChangelogGenerator

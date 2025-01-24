@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,6 +31,10 @@ public sealed class RoslynService
 
 	private static void AnalyzeSyntaxChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
 	{
+		Console.WriteLine("Analyzing namespace changes");
+		AnalyzeNamespaceChanges(oldRoot, newRoot, changelogEntry);
+		Console.WriteLine("Analyzing using changes");
+		AnalyzeUsingChanges(oldRoot, newRoot, changelogEntry);
 		Console.WriteLine("Analyzing type changes");
 		AnalyzeTypeChanges(oldRoot, newRoot, changelogEntry);
 		Console.WriteLine("Analyzing method changes");
@@ -45,6 +49,37 @@ public sealed class RoslynService
 		AnalyzeEnumChanges(oldRoot, newRoot, changelogEntry);
 	}
 
+	private static void AnalyzeNamespaceChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
+	{
+		var oldNamespaces = oldRoot.DescendantNodes().OfType<NamespaceDeclarationSyntax>().ToList();
+		var newNamespaces = newRoot.DescendantNodes().OfType<NamespaceDeclarationSyntax>().ToList();
+
+		foreach (var ns in newNamespaces)
+		{
+			var oldNamespace = oldNamespaces.FirstOrDefault(n => n.Name.ToString() == ns.Name.ToString());
+
+			if (oldNamespace == null)
+				changelogEntry.AddedNamespaces.Add($"{ns.Name}");
+			else if (!ns.IsEquivalentTo(oldNamespace))
+				changelogEntry.ModifiedNamespaces.Add(($"{oldNamespace.Name}", $"{ns.Name}"));
+		}
+
+		foreach (var ns in oldNamespaces.Where(ns => newNamespaces.All(n => n.Name.ToString() != ns.Name.ToString())))
+			changelogEntry.RemovedNamespaces.Add($"{ns.Name}");
+	}
+
+	private static void AnalyzeUsingChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
+	{
+		var oldUsings = oldRoot.DescendantNodes().OfType<UsingDirectiveSyntax>().Select(u => u.Name.ToString()).ToList();
+		var newUsings = newRoot.DescendantNodes().OfType<UsingDirectiveSyntax>().Select(u => u.Name.ToString()).ToList();
+
+		foreach (var @using in newUsings.Except(oldUsings))
+			changelogEntry.AddedUsings.Add(@using);
+
+		foreach (var @using in oldUsings.Except(newUsings))
+			changelogEntry.RemovedUsings.Add(@using);
+	}
+
 	private static void AnalyzeTypeChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
 	{
 		var oldTypes = oldRoot.DescendantNodes().OfType<TypeDeclarationSyntax>().ToList();
@@ -55,13 +90,13 @@ public sealed class RoslynService
 			var oldType = oldTypes.FirstOrDefault(t => t.Identifier.Text == type.Identifier.Text);
 
 			if (oldType == null)
-				changelogEntry.AddedTypes.Add(GetFullTypeName(type));
+				changelogEntry.AddedTypes.Add($"{GetFullTypeName(type)}");
 			else if (!type.IsEquivalentTo(oldType) && !ElementMoved(oldType, type))
-				changelogEntry.ModifiedTypes.Add((GetFullTypeName(oldType), GetFullTypeName(type)));
+				changelogEntry.ModifiedTypes.Add(($"{GetFullTypeName(oldType)}", $"{GetFullTypeName(type)}"));
 		}
 
 		foreach (var type in oldTypes.Where(type => newTypes.All(t => t.Identifier.Text != type.Identifier.Text)))
-			changelogEntry.RemovedTypes.Add(GetFullTypeName(type));
+			changelogEntry.RemovedTypes.Add($"{GetFullTypeName(type)}");
 	}
 
 	private static void AnalyzeMethodChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
@@ -74,13 +109,13 @@ public sealed class RoslynService
 			var oldMethod = oldMethods.FirstOrDefault(m => m.Identifier.Text == method.Identifier.Text);
 
 			if (oldMethod == null)
-				changelogEntry.AddedMethods.Add(GetMethodSignatureWithContext(method));
+				changelogEntry.AddedMethods.Add($"{GetMethodSignatureWithContext(method)}");
 			else if (!method.IsEquivalentTo(oldMethod) && !ElementMoved(oldMethod, method))
-				changelogEntry.ModifiedMethods.Add((GetMethodSignatureWithContext(oldMethod), GetMethodSignatureWithContext(method)));
+				changelogEntry.ModifiedMethods.Add(($"{GetMethodSignatureWithContext(oldMethod)}", $"{GetMethodSignatureWithContext(method)}"));
 		}
 
 		foreach (var method in oldMethods.Where(method => newMethods.All(m => m.Identifier.Text != method.Identifier.Text)))
-			changelogEntry.RemovedMethods.Add(GetMethodSignatureWithContext(method));
+			changelogEntry.RemovedMethods.Add($"{GetMethodSignatureWithContext(method)}");
 	}
 
 	private static void AnalyzePropertyChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
@@ -93,13 +128,13 @@ public sealed class RoslynService
 			var oldProperty = oldProperties.FirstOrDefault(p => p.Identifier.Text == property.Identifier.Text);
 
 			if (oldProperty == null)
-				changelogEntry.AddedProperties.Add(GetPropertySignatureWithContext(property));
+				changelogEntry.AddedProperties.Add($"{GetPropertySignatureWithContext(property)}");
 			else if (!property.IsEquivalentTo(oldProperty) && !ElementMoved(oldProperty, property))
-				changelogEntry.ModifiedProperties.Add((GetPropertySignatureWithContext(oldProperty), GetPropertySignatureWithContext(property)));
+				changelogEntry.ModifiedProperties.Add(($"{GetPropertySignatureWithContext(oldProperty)}", $"{GetPropertySignatureWithContext(property)}"));
 		}
 
 		foreach (var property in oldProperties.Where(property => newProperties.All(p => p.Identifier.Text != property.Identifier.Text)))
-			changelogEntry.RemovedProperties.Add(GetPropertySignatureWithContext(property));
+			changelogEntry.RemovedProperties.Add($"{GetPropertySignatureWithContext(property)}");
 	}
 
 	private static void AnalyzeFieldChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
@@ -114,15 +149,15 @@ public sealed class RoslynService
 				f.Declaration.Variables.Any(v => v.Identifier.Text == variable.Identifier.Text));
 
 			if (oldField == null)
-				changelogEntry.AddedFields.Add(GetFullFieldSignatureWithContext(field, variable.Identifier.Text));
+				changelogEntry.AddedFields.Add($"{GetFullFieldSignatureWithContext(field, variable.Identifier.Text)}");
 			else if (!field.IsEquivalentTo(oldField) && !ElementMoved(oldField, field))
-				changelogEntry.ModifiedFields.Add((GetFullFieldSignatureWithContext(oldField, variable.Identifier.Text), GetFullFieldSignatureWithContext(field, variable.Identifier.Text)));
+				changelogEntry.ModifiedFields.Add(($"{GetFullFieldSignatureWithContext(oldField, variable.Identifier.Text)}", $"{GetFullFieldSignatureWithContext(field, variable.Identifier.Text)}"));
 		}
 
 		foreach (var field in oldFields)
 		foreach (var variable in field.Declaration.Variables.Where(variable => newFields.All(f =>
-					f.Declaration.Variables.All(v => v.Identifier.Text != variable.Identifier.Text))))
-			changelogEntry.RemovedFields.Add(GetFullFieldSignatureWithContext(field, variable.Identifier.Text));
+			f.Declaration.Variables.All(v => v.Identifier.Text != variable.Identifier.Text))))
+			changelogEntry.RemovedFields.Add($"{GetFullFieldSignatureWithContext(field, variable.Identifier.Text)}");
 	}
 
 	private static void AnalyzeEventChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
@@ -148,18 +183,18 @@ public sealed class RoslynService
 			var oldEvent = oldEvents.FirstOrDefault(e => GetEventFieldSignatureWithContext(e) == GetEventFieldSignatureWithContext(@event));
 
 			if (oldEvent == null)
-				changelogEntry.AddedEvents.Add(GetEventFieldSignatureWithContext(@event));
+				changelogEntry.AddedEvents.Add($"{GetEventFieldSignatureWithContext(@event)}");
 			else if (!@event.IsEquivalentTo(oldEvent))
 			{
 				if (ElementMoved(oldEvent, @event))
 					continue;
 
-				changelogEntry.ModifiedEvents.Add((GetEventFieldSignatureWithContext(oldEvent), GetEventFieldSignatureWithContext(@event)));
+				changelogEntry.ModifiedEvents.Add(($"{GetEventFieldSignatureWithContext(oldEvent)}", $"{GetEventFieldSignatureWithContext(@event)}"));
 			}
 		}
 
 		foreach (var @event in oldEvents.Where(e => newEvents.All(ne => GetEventFieldSignatureWithContext(ne) != GetEventFieldSignatureWithContext(e))))
-			changelogEntry.RemovedEvents.Add(GetEventFieldSignatureWithContext(@event));
+			changelogEntry.RemovedEvents.Add($"{GetEventFieldSignatureWithContext(@event)}");
 	}
 
 	private static void AnalyzeEventDeclarations(List<EventDeclarationSyntax> oldEvents, List<EventDeclarationSyntax> newEvents, ChangelogEntry changelogEntry)
@@ -169,18 +204,18 @@ public sealed class RoslynService
 			var oldEvent = oldEvents.FirstOrDefault(e => GetEventDeclarationSignatureWithContext(e) == GetEventDeclarationSignatureWithContext(@event));
 
 			if (oldEvent == null)
-				changelogEntry.AddedEvents.Add(GetEventDeclarationSignatureWithContext(@event));
+				changelogEntry.AddedEvents.Add($"{GetEventDeclarationSignatureWithContext(@event)}");
 			else if (!@event.IsEquivalentTo(oldEvent))
 			{
 				if (ElementMoved(oldEvent, @event))
 					continue;
 
-				changelogEntry.ModifiedEvents.Add((GetEventDeclarationSignatureWithContext(oldEvent), GetEventDeclarationSignatureWithContext(@event)));
+				changelogEntry.ModifiedEvents.Add(($"{GetEventDeclarationSignatureWithContext(oldEvent)}", $"{GetEventDeclarationSignatureWithContext(@event)}"));
 			}
 		}
 
 		foreach (var @event in oldEvents.Where(e => newEvents.All(ne => GetEventDeclarationSignatureWithContext(ne) != GetEventDeclarationSignatureWithContext(e))))
-			changelogEntry.RemovedEvents.Add(GetEventDeclarationSignatureWithContext(@event));
+			changelogEntry.RemovedEvents.Add($"{GetEventDeclarationSignatureWithContext(@event)}");
 	}
 
 	private static void AnalyzePropertyEvents(List<PropertyDeclarationSyntax> oldProperties, List<PropertyDeclarationSyntax> newProperties, ChangelogEntry changelogEntry)
@@ -190,19 +225,19 @@ public sealed class RoslynService
 			var oldProperty = oldProperties.FirstOrDefault(p => GetPropertySignatureWithContext(p) == GetPropertySignatureWithContext(property));
 
 			if (oldProperty == null && IsEventProperty(property))
-				changelogEntry.AddedEvents.Add(GetPropertySignatureWithContext(property));
+				changelogEntry.AddedEvents.Add($"{GetPropertySignatureWithContext(property)}");
 			else if (oldProperty != null && !property.IsEquivalentTo(oldProperty) && IsEventProperty(property))
 			{
 				if (ElementMoved(oldProperty, property))
 					continue;
-					
-				changelogEntry.ModifiedEvents.Add((GetPropertySignatureWithContext(oldProperty), GetPropertySignatureWithContext(property)));
+
+				changelogEntry.ModifiedEvents.Add(($"{GetPropertySignatureWithContext(oldProperty)}", $"{GetPropertySignatureWithContext(property)}"));
 			}
 		}
 
 		foreach (var property in oldProperties.Where(p => newProperties.All(np => GetPropertySignatureWithContext(np) != GetPropertySignatureWithContext(p))))
 			if (IsEventProperty(property))
-				changelogEntry.RemovedEvents.Add(GetPropertySignatureWithContext(property));
+				changelogEntry.RemovedEvents.Add($"{GetPropertySignatureWithContext(property)}");
 	}
 
 	private static void AnalyzeEnumChanges(SyntaxNode oldRoot, SyntaxNode newRoot, ChangelogEntry changelogEntry)
@@ -215,7 +250,7 @@ public sealed class RoslynService
 			var oldEnum = oldEnums.FirstOrDefault(e => e.Identifier.Text == newEnum.Identifier.Text);
 
 			if (oldEnum == null)
-				changelogEntry.AddedEnums.Add(GetEnumSignatureWithContext(newEnum));
+				changelogEntry.AddedEnums.Add($"{GetEnumSignatureWithContext(newEnum)}");
 			else
 			{
 				if (!newEnum.IsEquivalentTo(oldEnum))
@@ -228,7 +263,7 @@ public sealed class RoslynService
 
 					if (addedValues.Count > 0 || removedValues.Count > 0)
 					{
-						changelogEntry.ModifiedEnums.Add((GetEnumSignatureWithContext(oldEnum), GetEnumSignatureWithContext(newEnum)));
+						changelogEntry.ModifiedEnums.Add(($"{GetEnumSignatureWithContext(oldEnum)}", $"{GetEnumSignatureWithContext(newEnum)}"));
 
 						foreach (var addedValue in addedValues)
 							changelogEntry.AddedEnumValues.Add($"{GetEnumSignatureWithContext(newEnum)}.{addedValue}");
@@ -241,7 +276,7 @@ public sealed class RoslynService
 		}
 
 		foreach (var oldEnum in oldEnums.Where(e => newEnums.All(ne => ne.Identifier.Text != e.Identifier.Text)))
-			changelogEntry.RemovedEnums.Add(GetEnumSignatureWithContext(oldEnum));
+			changelogEntry.RemovedEnums.Add($"{GetEnumSignatureWithContext(oldEnum)}");
 	}
 
 	private static string GetEventFieldSignatureWithContext(EventFieldDeclarationSyntax @event)
